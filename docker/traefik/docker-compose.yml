@@ -15,6 +15,7 @@ services:
       - "80:80"
       - "443:443"
       - "8080:8080"
+      - "1234:1234"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "traefik-letsencrypt:/letsencrypt"
@@ -27,9 +28,12 @@ services:
     volumes:
       - "./html:/usr/share/nginx/html" # Serve your index.html from the ./html folder
     labels:
-      - "traefik.http.routers.web.rule=Host(`example.com`)" # Replace with your domain or IP
+      - "traefik.http.routers.web.rule=PathPrefix(`/`)"  # Route traffic to the root path
       - "traefik.http.routers.web.entrypoints=web"
       - "traefik.http.services.web.loadbalancer.server.port=80"
+      - "traefik.http.routers.web.entrypoints=web"
+      - "traefik.http.routers.web.service=web"
+      - "traefik.http.routers.web.priority=1"
     networks:
       - traefik
 
