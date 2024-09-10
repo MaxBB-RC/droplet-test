@@ -1,0 +1,43 @@
+name: Deploy Traefik on Digital Ocean Droplet
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env: 
+      REMOTE_HOST: "139.59.160.38"
+      REMOTE_DIR: "~/do-droplet/deploy/traefik"
+      DOCKER_NETWORK_NAME: "traefik"
+      REMOTE_USER: "new-test-user"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DO_SSH_PRIVATE_KEY }}" > ~/.ssh/gh_actions_key
+          chmod 600 ~/.ssh/gh_actions_key
+          ssh-keyscan -H ${REMOTE_HOST} >> ~/.ssh/known_hosts
+
+      - name: Test connection
+        run: |
+          ssh -i ~/.ssh/gh_actions_key -o StrictHostKeyChecking=no -T ${REMOTE_USER}@${REMOTE_HOST} "echo 'Connection successful'"
+
+      - name: Copy docker-compose.yml to remote server
+        run: |
+          ssh -i ~/.ssh/gh_actions_key ${REMOTE_USER}@${REMOTE_HOST} "mkdir -p ${REMOTE_DIR}"
+          scp -i ~/.ssh/gh_actions_key -o StrictHostKeyChecking=no traefik/docker-compose.yml ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}/docker-compose.yml
+
+      - name: Deploy Traefik
+        run: |
+          ssh -i ~/.ssh/gh_actions_key ${REMOTE_USER}@${REMOTE_HOST} "cd ${REMOTE_DIR} && if ! docker network ls --format '{{.Name}}' | grep -w ${DOCKER_NETWORK_NAME} > /dev/null; then docker network create ${DOCKER_NETWORK_NAME}; fi && docker compose up -d traefik"
