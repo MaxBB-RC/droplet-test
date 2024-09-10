@@ -18,6 +18,7 @@ jobs:
       REMOTE_DIR: "~/do-droplet/deploy/traefik"
       DOCKER_NETWORK_NAME: "traefik"
       REMOTE_USER: "new-test-user"
+      LOCAL_DIR: "docker/traefik"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -36,7 +37,7 @@ jobs:
       - name: Copy docker-compose.yml to remote server
         run: |
           ssh -i ~/.ssh/gh_actions_key ${REMOTE_USER}@${REMOTE_HOST} "mkdir -p ${REMOTE_DIR}"
-          scp -i ~/.ssh/gh_actions_key -o StrictHostKeyChecking=no traefik/docker-compose.yml ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}/docker-compose.yml
+          scp -i ~/.ssh/gh_actions_key -o StrictHostKeyChecking=no ${LOCAL_DIR}/docker-compose.yml ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}/docker-compose.yml
 
       - name: Deploy Traefik
         run: |
