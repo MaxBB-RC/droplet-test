@@ -7,6 +7,7 @@ services:
       - "--providers.docker=true"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web8081.address=:8081"  # Add new entry point for port 8081
       - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
       - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
       - "--certificatesresolvers.myresolver.acme.email=me@myemail.com"
@@ -28,12 +29,11 @@ services:
     volumes:
       - "./html:/usr/share/nginx/html" # Serve your index.html from the ./html folder
     labels:
-      - "traefik.http.routers.web.rule=PathPrefix(`/`)"  # Route traffic to the root path
-      - "traefik.http.routers.web.entrypoints=web"
+      - "traefik.http.routers.web.rule=PathPrefix(`/`)"  # Route traffic to root
+      - "traefik.http.routers.web.entrypoints=web"  # Route through entry point "web" (port 80)
+      - "traefik.http.routers.web8081.rule=PathPrefix(`/`)"  # Route traffic to root on port 8081
+      - "traefik.http.routers.web8081.entrypoints=web8081"  # Use entry point "web8081" (port 8081)
       - "traefik.http.services.web.loadbalancer.server.port=80"
-      - "traefik.http.routers.web.entrypoints=web"
-      - "traefik.http.routers.web.service=web"
-      - "traefik.http.routers.web.priority=1"
     networks:
       - traefik
 
