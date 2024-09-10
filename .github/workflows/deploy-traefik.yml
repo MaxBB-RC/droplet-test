@@ -41,4 +41,4 @@ jobs:
 
       - name: Deploy Traefik
         run: |
-          ssh -i ~/.ssh/gh_actions_key ${REMOTE_USER}@${REMOTE_HOST} "cd ${REMOTE_DIR} && if ! docker network ls --format '{{.Name}}' | grep -w ${DOCKER_NETWORK_NAME} > /dev/null; then docker network create ${DOCKER_NETWORK_NAME}; fi && docker compose up -d"
+          ssh -i ~/.ssh/gh_actions_key ${REMOTE_USER}@${REMOTE_HOST} "cd ${REMOTE_DIR} && if ! docker network ls --format '{{.Name}}' | grep -w ${DOCKER_NETWORK_NAME} > /dev/null; then docker network create ${DOCKER_NETWORK_NAME}; fi && docker compose up -d traefik"
