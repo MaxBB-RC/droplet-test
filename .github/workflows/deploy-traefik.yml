@@ -39,6 +39,11 @@ jobs:
           ssh -i ~/.ssh/gh_actions_key ${REMOTE_USER}@${REMOTE_HOST} "mkdir -p ${REMOTE_DIR}"
           scp -i ~/.ssh/gh_actions_key -o StrictHostKeyChecking=no ${LOCAL_DIR}/docker-compose.yml ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}/docker-compose.yml
 
-      - name: Deploy Traefik
+      - name: Copy index.html to remote server
         run: |
-          ssh -i ~/.ssh/gh_actions_key ${REMOTE_USER}@${REMOTE_HOST} "cd ${REMOTE_DIR} && if ! docker network ls --format '{{.Name}}' | grep -w ${DOCKER_NETWORK_NAME} > /dev/null; then docker network create ${DOCKER_NETWORK_NAME}; fi && docker compose up -d traefik"
+          ssh -i ~/.ssh/gh_actions_key ${REMOTE_USER}@${REMOTE_HOST} "mkdir -p ${REMOTE_DIR}/html"
+          scp -i ~/.ssh/gh_actions_key -o StrictHostKeyChecking=no ${LOCAL_DIR}/html/index.html ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}/html/index.html
+  
+      - name: Deploy Traefik and NGINX Web Service
+        run: |
+          ssh -i ~/.ssh/gh_actions_key ${REMOTE_USER}@${REMOTE_HOST} "cd ${REMOTE_DIR} && if ! docker network ls --format '{{.Name}}' | grep -w ${DOCKER_NETWORK_NAME} > /dev/null; then docker network create ${DOCKER_NETWORK_NAME}; fi && docker compose up -d"
