@@ -41,7 +41,7 @@ jobs:
 
       - name: Copy index.html to remote server
         run: |
-          ssh -i ~/.ssh/gh_actions_key ${REMOTE_USER}@${REMOTE_HOST} "mkdir -p ${REMOTE_DIR}/html"
+          ssh -i ~/.ssh/gh_actions_key ${REMOTE_USER}@${REMOTE_HOST} "mkdir -p web"
           scp -i ~/.ssh/gh_actions_key -o StrictHostKeyChecking=no web/index.html ${REMOTE_USER}@${REMOTE_HOST}:web/index.html
   
       - name: Deploy Traefik and NGINX Web Service
